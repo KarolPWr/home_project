@@ -20,8 +20,8 @@ print "Content-type: text/html\n\n"
 print '<h1>Temp = {0:0.2f} *C</h1>'.format(sensor.read_temperature())
 print '<h1>Pressure = {0:0.2f} hPa</h1>'.format(sensor.read_pressure()/100)
 result=get_data()
-print '<h1> Last database entry: </h1>'
-print '<h1>'
-print str(result)
-print '</h1>'
+#print '<h1> Last database entry: </h1>'
+#print '<h1>'
+#print str(result)
+#print '</h1>'
 
