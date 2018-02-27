@@ -23,5 +23,5 @@ result=get_data()
 #print '<h1> Last database entry: </h1>'
 #print '<h1>'
 #print str(result)
-#print '</h1>'
+##print '</h1>'
 
