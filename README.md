@@ -1,2 +1,5 @@
-# swe_projekt
-Projekt SWE 2017
+# Home project
+
+Host - Raspberry Pi hosting GUI web server
+
+STM32 - Remote sensor station 
