@@ -33,7 +33,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define SPI_CE GPIO_PIN_2    // portb
+#define SPI_NSS GPIO_PIN_11    // portb
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -99,17 +100,23 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
+
+	  uint8_t TxBuf[4] = {0x00};
+	  uint8_t RxBuf[4] = {0};
+
+	  HAL_GPIO_WritePin(GPIOB, SPI_CE, GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOB, SPI_NSS, GPIO_PIN_RESET);
+	  HAL_SPI_TransmitReceive(&hspi2, TxBuf, RxBuf, sizeof(TxBuf), 1000);
+	  HAL_GPIO_WritePin(GPIOB, SPI_CE, GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOB, SPI_NSS, GPIO_PIN_SET);
+
     /* USER CODE END WHILE */
-	  uint8_t Txe[] = {0x0e};
-	  uint8_t Rxe[] = {0};
-
-	  HAL_Delay(500);
-	  if (HAL_SPI_GetError(&hspi2) == 0x00000000U)
-	  {
-		  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
-	  }
-	  //HAL_SPI_TransmitReceive(&hspi2, Txe, Rxe, sizeof(uint8_t), 10);
-
+	  if (HAL_SPI_GetError(&hspi2) != 0x00000000U)
+	  	  {
+	  		  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
+	  		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);
+	  	  }
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -203,10 +210,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2|GPIO_PIN_11|GPIO_PIN_13, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : PB13 */
-  GPIO_InitStruct.Pin = GPIO_PIN_13;
+  /*Configure GPIO pins : PB2 PB11 PB13 */
+  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_11|GPIO_PIN_13;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
