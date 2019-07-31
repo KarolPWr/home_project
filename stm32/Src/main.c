@@ -102,21 +102,23 @@ int main(void)
   {
 
 
-	  uint8_t TxBuf[4] = {0x00};
-	  uint8_t RxBuf[4] = {0};
+	  uint8_t TxBuf[] = {0x01|0x1F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+	  uint8_t RxBuf[] = {0,0,0,0, 0,0,0,0};
+	  HAL_StatusTypeDef state;
 
-	  HAL_GPIO_WritePin(GPIOB, SPI_CE, GPIO_PIN_SET);
-	  HAL_GPIO_WritePin(GPIOB, SPI_NSS, GPIO_PIN_RESET);
-	  HAL_SPI_TransmitReceive(&hspi2, TxBuf, RxBuf, sizeof(TxBuf), 1000);
 	  HAL_GPIO_WritePin(GPIOB, SPI_CE, GPIO_PIN_RESET);
+	  HAL_GPIO_WritePin(GPIOB, SPI_NSS, GPIO_PIN_RESET);
+	  state = HAL_SPI_TransmitReceive(&hspi2, TxBuf, RxBuf, 4, 1000);
 	  HAL_GPIO_WritePin(GPIOB, SPI_NSS, GPIO_PIN_SET);
+	  HAL_GPIO_WritePin(GPIOB, SPI_CE, GPIO_PIN_SET);
+	  while(1)
+	  {
+
+	  }
+
 
     /* USER CODE END WHILE */
-	  if (HAL_SPI_GetError(&hspi2) != 0x00000000U)
-	  	  {
-	  		  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_13);
-	  		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);
-	  	  }
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -175,7 +177,7 @@ static void MX_SPI2_Init(void)
   hspi2.Instance = SPI2;
   hspi2.Init.Mode = SPI_MODE_MASTER;
   hspi2.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi2.Init.DataSize = SPI_DATASIZE_4BIT;
+  hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi2.Init.NSS = SPI_NSS_SOFT;
@@ -185,7 +187,7 @@ static void MX_SPI2_Init(void)
   hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
   hspi2.Init.CRCPolynomial = 7;
   hspi2.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
-  hspi2.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
+  hspi2.Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
   if (HAL_SPI_Init(&hspi2) != HAL_OK)
   {
     Error_Handler();
