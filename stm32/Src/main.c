@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "tsst.h"
+#include "nrf24.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -102,13 +102,16 @@ int main(void)
   {
 
 
-	  uint8_t TxBuf[] = {0x01|0x1F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+	  uint8_t TxBuf[] = {(0x07&0x1F), 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 	  uint8_t RxBuf[] = {0,0,0,0, 0,0,0,0};
-	  HAL_StatusTypeDef state;
+
+	  uint8_t status = 1;
+	  status = nRF24_Check();   // this returns zero (fails)
 
 	  HAL_GPIO_WritePin(GPIOB, SPI_CE, GPIO_PIN_RESET);
 	  HAL_GPIO_WritePin(GPIOB, SPI_NSS, GPIO_PIN_RESET);
-	  state = HAL_SPI_TransmitReceive(&hspi2, TxBuf, RxBuf, 4, 1000);
+	  if (HAL_SPI_TransmitReceive(&hspi2, TxBuf, RxBuf, 8, 1000) != HAL_OK)   //this is working OK
+		  Error_Handler();
 	  HAL_GPIO_WritePin(GPIOB, SPI_NSS, GPIO_PIN_SET);
 	  HAL_GPIO_WritePin(GPIOB, SPI_CE, GPIO_PIN_SET);
 	  while(1)
@@ -212,7 +215,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2|GPIO_PIN_11|GPIO_PIN_13, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2|GPIO_PIN_11, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PB2 PB11 PB13 */
   GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_11|GPIO_PIN_13;
