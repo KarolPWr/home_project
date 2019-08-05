@@ -101,23 +101,41 @@ int main(void)
   while (1)
   {
 
-
-	  uint8_t TxBuf[] = {(0x07&0x1F), 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-	  uint8_t RxBuf[] = {0,0,0,0, 0,0,0,0};
+	  uint8_t TxBuf[] = {0x30, 'g', 'r', 'f', 2, 4};
+	  uint8_t RxBuf[] = {0,0,0,0, 0,0};
 
 	  uint8_t status = 1;
-	  status = nRF24_Check();   // this returns zero (fails)
-
 	  HAL_GPIO_WritePin(GPIOB, SPI_CE, GPIO_PIN_RESET);
-	  HAL_GPIO_WritePin(GPIOB, SPI_NSS, GPIO_PIN_RESET);
-	  if (HAL_SPI_TransmitReceive(&hspi2, TxBuf, RxBuf, 8, 1000) != HAL_OK)   //this is working OK
-		  Error_Handler();
-	  HAL_GPIO_WritePin(GPIOB, SPI_NSS, GPIO_PIN_SET);
-	  HAL_GPIO_WritePin(GPIOB, SPI_CE, GPIO_PIN_SET);
-	  while(1)
-	  {
+	  //uint8_t check = 1;
+	  //check = nRF24_Check();   // this returns zero (fails)
 
-	  }
+
+	  //HAL_GPIO_WritePin(GPIOB, SPI_NSS, GPIO_PIN_RESET);
+	  nRF24_CSN_L();
+	  if (HAL_SPI_TransmitReceive(&hspi2, TxBuf, RxBuf, 6, 1000) != HAL_OK)   //this is working OK
+		  Error_Handler();
+	  nRF24_CSN_H();
+
+	  HAL_GPIO_WritePin(GPIOB, SPI_CE, GPIO_PIN_SET);
+
+
+	  // finish write reg part -------------------------------------------------------------------------------
+
+	  uint8_t TxBuf2[] = {0x10, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+	  uint8_t RxBuf2[] = {0,0,0,0, 0,0};
+
+	  uint8_t status2 = 1;
+	  HAL_GPIO_WritePin(GPIOB, SPI_CE, GPIO_PIN_RESET);
+
+	  //status2 = nRF24_Check();   // this returns zero (fails)
+
+	  nRF24_CSN_L();
+	  if (HAL_SPI_TransmitReceive(&hspi2, TxBuf2, RxBuf2, 6, 1000) != HAL_OK)   //this is working OK
+		  Error_Handler();
+	  nRF24_CSN_H();
+
+
+	  HAL_GPIO_WritePin(GPIOB, SPI_CE, GPIO_PIN_SET);
 
 
     /* USER CODE END WHILE */

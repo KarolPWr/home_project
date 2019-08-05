@@ -16,7 +16,8 @@
 uint8_t nRF24_LL_RW(uint8_t data) {
 
 	uint8_t pRxData = 0;
-	HAL_SPI_TransmitReceive(nRF24_SPI_PORT, &data, &pRxData, 1, 1000);
+	HAL_StatusTypeDef errorcode = HAL_OK;
+	errorcode = HAL_SPI_TransmitReceive(nRF24_SPI_PORT, &data, &pRxData, 1, HAL_MAX_DELAY);
 	return pRxData;
 
 
