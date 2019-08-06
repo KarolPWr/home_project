@@ -45,6 +45,8 @@
 /* Private variables ---------------------------------------------------------*/
 SPI_HandleTypeDef hspi2;
 
+UART_HandleTypeDef huart2;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -53,6 +55,7 @@ SPI_HandleTypeDef hspi2;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_SPI2_Init(void);
+static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -92,25 +95,16 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_SPI2_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-
+void test_spi_read_write(void)
+{
+	  HAL_GPIO_WritePin(GPIOB, SPI_CE, GPIO_PIN_RESET);
+	  uint8_t check = 1;
 	  uint8_t TxBuf[] = {0x30, 'g', 'r', 'f', 2, 4};
 	  uint8_t RxBuf[] = {0,0,0,0, 0,0};
+	  check = nRF24_Check();   // this returns zero (fails)
 
-	  uint8_t status = 1;
-	  HAL_GPIO_WritePin(GPIOB, SPI_CE, GPIO_PIN_RESET);
-	  //uint8_t check = 1;
-	  //check = nRF24_Check();   // this returns zero (fails)
-
-
-	  //HAL_GPIO_WritePin(GPIOB, SPI_NSS, GPIO_PIN_RESET);
 	  nRF24_CSN_L();
 	  if (HAL_SPI_TransmitReceive(&hspi2, TxBuf, RxBuf, 6, 1000) != HAL_OK)   //this is working OK
 		  Error_Handler();
@@ -136,6 +130,42 @@ int main(void)
 
 
 	  HAL_GPIO_WritePin(GPIOB, SPI_CE, GPIO_PIN_SET);
+}
+
+void my_print(uint8_t *string)
+{
+	HAL_StatusTypeDef error;
+	while( *string != '\0')
+	{
+	error = HAL_UART_Transmit(&huart2, string++, sizeof(uint8_t), HAL_MAX_DELAY);
+	}
+}
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+
+
+	  my_print("System started\r\n");
+	  uint8_t status = 1;
+	  if (!nRF24_Check())
+	  {
+		  my_print("Check failed \r\n");
+	  }
+	  else
+		  my_print("Check successful\r\n");
+
+	  //uint8_t *uart_test = "Hejooooooooooo\r\n";
+	  //HAL_UART_Transmit(&huart2, uart_test, sizeof(uart_test), HAL_MAX_DELAY);
+	  HAL_Delay(500);
+
+
+	  nRF24_Init();
+
+
+
 
 
     /* USER CODE END WHILE */
@@ -220,6 +250,41 @@ static void MX_SPI2_Init(void)
 }
 
 /**
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART2_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART2_Init 0 */
+
+  /* USER CODE END USART2_Init 0 */
+
+  /* USER CODE BEGIN USART2_Init 1 */
+
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 38400;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART2_Init 2 */
+
+  /* USER CODE END USART2_Init 2 */
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -230,6 +295,7 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOF_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
