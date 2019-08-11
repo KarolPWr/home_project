@@ -24,4 +24,5 @@
 "Src/syscalls.o"
 "Src/sysmem.o"
 "Src/system_stm32f3xx.o"
+"Src/uart_msg.o"
 "Startup/startup_stm32f302r8tx.o"

@@ -24,6 +24,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "nrf24.h"
+#include "dbg.h"
+#include "uart_msg.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -132,13 +134,61 @@ void test_spi_read_write(void)
 	  HAL_GPIO_WritePin(GPIOB, SPI_CE, GPIO_PIN_SET);
 }
 
-void my_print(uint8_t *string)
+
+int send_packet(void)
 {
-	HAL_StatusTypeDef error;
-	while( *string != '\0')
-	{
-	error = HAL_UART_Transmit(&huart2, string++, sizeof(uint8_t), HAL_MAX_DELAY);
+	//config on rpi
+//	STATUS           = 0x0e RX_DR=0 TX_DS=0 MAX_RT=0 RX_P_NO=7 TX_FULL=0
+//	RX_ADDR_P0-1     = 0xe7e7e7e7e7 0x3130303030
+//	RX_ADDR_P2-5     = 0xc3 0xc4 0xc5 0xc6
+//	TX_ADDR          = 0xe7e7e7e7e7
+//	RX_PW_P0-6       = 0x00 0x20 0x00 0x00 0x00 0x00
+//	EN_AA            = 0x3f
+//	EN_RXADDR        = 0x02
+//	RF_CH            = 0x4c
+//	RF_SETUP         = 0x07
+//	CONFIG           = 0x0e
+//	DYNPD/FEATURE    = 0x00 0x00
+//	Data Rate        = 1MBPS
+//	Model            = nRF24L01+
+//	CRC Length       = 16 bits
+//	PA Power         = PA_MAX
+
+	uint8_t ADDR[] = { '0', '0', '0', '0', '1' }; // the TX address
+	nRF24_DisableAA(0xFF); // disable ShockBurst
+	nRF24_SetRFChannel(0x4c); // set RF channel to 2490MHz
+	nRF24_SetDataRate(nRF24_DR_1Mbps); // 2Mbit/s data rate
+	nRF24_SetCRCScheme(nRF24_CRC_2byte); // 1-byte CRC scheme
+	nRF24_SetAddrWidth(5); // address width is 5 bytes
+	nRF24_SetTXPower(nRF24_TXPWR_0dBm); // configure TX power
+	nRF24_SetAddr(nRF24_PIPETX, ADDR); // program TX address
+	nRF24_SetOperationalMode(nRF24_MODE_TX); // switch transceiver to the TX mode
+	nRF24_SetPowerMode(nRF24_PWR_UP); // wake-up transceiver (in case if it sleeping)
+
+	uint8_t pBuf[] = {'H', 'e'};
+	uint8_t status;
+	nRF24_WritePayload(pBuf, 2); // transfer payload data to transceiver
+	nRF24_CE_H(); // assert CE pin (transmission starts)
+	while (1) {
+	    status = nRF24_GetStatus();
+	    if (status & (nRF24_FLAG_TX_DS | nRF24_FLAG_MAX_RT)) {
+	        // transmission ended, exit loop
+	        break;
+	    }
 	}
+	nRF24_CE_H(); // de-assert CE pin (nRF24 goes to StandBy-I mode)
+	nRF24_ClearIRQFlags(); // clear any pending IRQ flags
+	if (status & nRF24_FLAG_MAX_RT) {
+	    // Auto retransmit counter exceeds the programmed maximum limit (payload in FIFO is not removed)
+	    // Also the software can flush the TX FIFO here...
+	    return 0;
+	}
+	if (status & nRF24_FLAG_TX_DS) {
+	    // Successful transmission
+	    return 1;
+	}
+	// In fact that should not happen
+	return -4;
 }
   /* USER CODE END 2 */
 
@@ -147,22 +197,32 @@ void my_print(uint8_t *string)
   while (1)
   {
 
-
+	  HAL_StatusTypeDef error;
+	  uint8_t *number = "reeeeeee";
 	  my_print("System started\r\n");
-	  uint8_t status = 1;
 	  if (!nRF24_Check())
 	  {
 		  my_print("Check failed \r\n");
+		  Error_Handler();
 	  }
 	  else
 		  my_print("Check successful\r\n");
 
-	  //uint8_t *uart_test = "Hejooooooooooo\r\n";
-	  //HAL_UART_Transmit(&huart2, uart_test, sizeof(uart_test), HAL_MAX_DELAY);
+
+	  debug_printf("So this works\r\n");
+	  debug_printf("So %s this works\r\n", number);
+
+
+	  //debug("LMAO\r");
+
 	  HAL_Delay(500);
 
 
-	  nRF24_Init();
+	  //nRF24_Init();
+
+	  //send_packet();
+
+
 
 
 

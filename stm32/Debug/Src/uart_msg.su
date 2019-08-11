@@ -1,0 +1,4 @@
+uart_msg.c:12:6:my_print	24	static
+uart_msg.c:21:19:my_print_char	24	static
+uart_msg.c:29:6:debug_printf	24	static
+uart_msg.c:87:10:convert	24	static
