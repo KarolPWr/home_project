@@ -11,6 +11,15 @@
 
 extern UART_HandleTypeDef huart2;
 
+// Control types for UART. Not used right now
+typedef enum
+{
+  UART_OK       = 0x00U,
+  UART_ERROR    = 0x01U,
+  UART_BUSY     = 0x02U,
+  UART_TIMEOUT  = 0x03
+} UART_Print_Status;
+
 
 void my_print(uint8_t *string);
 

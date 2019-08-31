@@ -9,6 +9,7 @@
 
 
 #include "nrf24.h"
+#include "dbg.h"
 
 
 // Read a register
@@ -445,6 +446,70 @@ nRF24_RXResult nRF24_ReadPayload(uint8_t *pBuf, uint8_t *length) {
 	return nRF24_RX_EMPTY;
 }
 
+
+void nRF24_dump_config(void)
+{
+	//config on rpi
+	//	STATUS           = 0x0e RX_DR=0 TX_DS=0 MAX_RT=0 RX_P_NO=7 TX_FULL=0
+	//	RX_ADDR_P0-1     = 0xe7e7e7e7e7 0x3130303030
+	//	RX_ADDR_P2-5     = 0xc3 0xc4 0xc5 0xc6
+	//	TX_ADDR          = 0xe7e7e7e7e7
+	//	RX_PW_P0-6       = 0x00 0x20 0x00 0x00 0x00 0x00
+	//	EN_AA            = 0x3f
+	//	EN_RXADDR        = 0x02
+	//	RF_CH            = 0x4c
+	//	RF_SETUP         = 0x07
+	//	CONFIG           = 0x0e
+	//	DYNPD/FEATURE    = 0x00 0x00
+	//	Data Rate        = 1MBPS
+	//	Model            = nRF24L01+
+	//	CRC Length       = 16 bits
+	//	PA Power         = PA_MAX
+
+	uint8_t i=0;
+	uint8_t buf[5];
+	uint8_t aw;
+	i = nRF24_ReadReg(nRF24_REG_CONFIG);
+	log_info("Status: 0x%x", i);
+
+	i = nRF24_ReadReg(nRF24_REG_RF_CH);
+	log_info("RF Channel: 0x%x", i);
+
+	i = nRF24_ReadReg(nRF24_REG_RF_SETUP);
+	log_info("RF setup: 0x%x", i);
+
+	// SETUP_AW
+	i = nRF24_ReadReg(nRF24_REG_SETUP_AW);
+	aw = (i & 0x03) + 2;
+
+	nRF24_ReadMBReg(nRF24_REG_TX_ADDR,buf,aw);
+	for (i = 0; i < aw; i++) log_info("TX ADDR: %x",buf[i]);
+
+	// RX_ADDR_P0
+	nRF24_ReadMBReg(nRF24_REG_RX_ADDR_P0,buf,aw);
+	for (i = 0; i < aw; i++) log_info("RX_ADDR_P0: %x",buf[i]);
+	// RX_ADDR_P1
+	nRF24_ReadMBReg(nRF24_REG_RX_ADDR_P1,buf,aw);
+	for (i = 0; i < aw; i++) log_info("RX_ADDR_P1: %x",buf[i]);
+
+	// RX_ADDR_P2
+	i = nRF24_ReadReg(nRF24_REG_RX_ADDR_P2);
+	log_info("REG_RX_ADDR_P2: 0x%x", i);
+
+	i = nRF24_ReadReg(nRF24_REG_RX_ADDR_P3);
+	log_info("REG_RX_ADDR_P3: 0x%x", i);
+
+	i = nRF24_ReadReg(nRF24_REG_RX_ADDR_P4);
+	log_info("REG_RX_ADDR_P4: 0x%x", i);
+
+	i = nRF24_ReadReg(nRF24_REG_RX_ADDR_P5);
+	log_info("REG_RX_ADDR_P5: 0x%x", i);
+
+
+
+
+
+}
 
 /*
 

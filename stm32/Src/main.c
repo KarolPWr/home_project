@@ -26,6 +26,7 @@
 #include "nrf24.h"
 #include "dbg.h"
 #include "uart_msg.h"
+#include <stdlib.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,41 +65,29 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
-int main(void)
+void test_debug(void)
 {
-  /* USER CODE BEGIN 1 */
+	uint8_t number = 24;
+	  debug_printf("So this works\r\n");
+	  debug_printf("So %s this works\r\n", number);
 
-  /* USER CODE END 1 */
-  
 
-  /* MCU Configuration--------------------------------------------------------*/
+	  debug("Basic debug works\r");
+	  log_err("Error logging works\r");
+	  log_info("Info logging works\r");
+	  log_warn("Warning logging works\r");
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	  sentinel("NEVER SHOULD HAVE COME HERE\r");
 
-  /* USER CODE BEGIN Init */
+	  uint8_t *test_ptr = malloc(sizeof(uint8_t));
+	  check(test_ptr, "FAILED");
+	  *test_ptr = NULL;
+	  check(test_ptr, "SUCC");
 
-  /* USER CODE END Init */
+	  error:
+	  	  while(1);
+}
 
-  /* Configure the system clock */
-  SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_SPI2_Init();
-  MX_USART2_UART_Init();
-  /* USER CODE BEGIN 2 */
 void test_spi_read_write(void)
 {
 	  HAL_GPIO_WritePin(GPIOB, SPI_CE, GPIO_PIN_RESET);
@@ -154,7 +143,7 @@ int send_packet(void)
 //	CRC Length       = 16 bits
 //	PA Power         = PA_MAX
 
-	uint8_t ADDR[] = { '0', '0', '0', '0', '1' }; // the TX address
+	uint8_t ADDR[] = { 0xe7, 0xe7, 0xe7, 0xe7, 0xe7 }; // the TX address
 	nRF24_DisableAA(0xFF); // disable ShockBurst
 	nRF24_SetRFChannel(0x4c); // set RF channel to 2490MHz
 	nRF24_SetDataRate(nRF24_DR_1Mbps); // 2Mbit/s data rate
@@ -190,6 +179,41 @@ int send_packet(void)
 	// In fact that should not happen
 	return -4;
 }
+/* USER CODE END 0 */
+
+/**
+  * @brief  The application entry point.
+  * @retval int
+  */
+int main(void)
+{
+  /* USER CODE BEGIN 1 */
+
+  /* USER CODE END 1 */
+
+
+  /* MCU Configuration--------------------------------------------------------*/
+
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
+
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the system clock */
+  SystemClock_Config();
+
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_SPI2_Init();
+  MX_USART2_UART_Init();
+  /* USER CODE BEGIN 2 */
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -198,31 +222,40 @@ int send_packet(void)
   {
 
 	  HAL_StatusTypeDef error;
-	  uint8_t *number = "reeeeeee";
-	  my_print("System started\r\n");
+
+	  log_info("System started\r");
 	  if (!nRF24_Check())
 	  {
-		  my_print("Check failed \r\n");
-		  Error_Handler();
+		  log_err("Check failed \r");
+		  log_info("Retrying...");
+		  HAL_Delay(500); //delay just to make sure
+		  if (!nRF24_Check())
+		  {
+			  log_err("Check failed again \r");
+			  Error_Handler();
+		  }
+		  else
+		  log_info("Check successful after retry\r");
+
 	  }
 	  else
-		  my_print("Check successful\r\n");
+		  log_info("Check successful\r");
 
-
-	  debug_printf("So this works\r\n");
-	  debug_printf("So %s this works\r\n", number);
-
-
-	  //debug("LMAO\r");
 
 	  HAL_Delay(500);
 
+	  nRF24_Init();
 
-	  //nRF24_Init();
+	  log_info("System running\r");
+	  send_packet();
+	  HAL_Delay(1000);
+	  nRF24_dump_config();
 
-	  //send_packet();
 
+	  while(1)
+	  {
 
+	  }
 
 
 
@@ -385,7 +418,8 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
-
+	log_err("Error occurred, restart system!");
+	while(1);
   /* USER CODE END Error_Handler_Debug */
 }
 
