@@ -1,0 +1,7 @@
+#popular files
+
+*.bin
+*.hex
+
+#folders
+**/_build/
