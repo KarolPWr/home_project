@@ -148,9 +148,8 @@ int main(void)
     APP_TIMER_INIT(APP_TIMER_PRESCALER, APP_TIMER_OP_QUEUE_SIZE, NULL);
 
     err_code = NRF_LOG_INIT(NULL);
+    NRF_LOG_INFO("System started, logging initialized\r\n");
     APP_ERROR_CHECK(err_code);
-    // err_code = bsp_init(BSP_INIT_LED, APP_TIMER_TICKS(100, APP_TIMER_PRESCALER), NULL);
-    // APP_ERROR_CHECK(err_code);
 
     // Set radio configuration parameters
     radio_configure();

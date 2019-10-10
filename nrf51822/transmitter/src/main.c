@@ -74,6 +74,9 @@ static uint32_t                   packet;                    /**< Packet to tran
 
 #define NRF_LOG_BACKEND_SERIAL_USES_UART 1
 
+#undef NRF_LOG_BACKEND_SERIAL_UART_BAUDRATE
+#define NRF_LOG_BACKEND_SERIAL_UART_BAUDRATE 115200
+
 // #define NRF_LOG_BACKEND_SERIAL_UART_BAUDRATE 9600
 // #define NRF_LOG_BACKEND_SERIAL_UART_TX_PIN 9
 // #define NRF_LOG_BACKEND_SERIAL_UART_RX_PIN 11
@@ -111,42 +114,6 @@ void send_packet()
         // wait
     }
 }
-
-
-// /**@brief Function for handling bsp events.
-//  */
-// void bsp_evt_handler(bsp_event_t evt)
-// {
-//     uint32_t prep_packet = 0;
-//     switch (evt)
-//     {
-//         case BSP_EVENT_KEY_0:
-//             /* Fall through. */
-//         case BSP_EVENT_KEY_1:
-//             /* Fall through. */
-//         case BSP_EVENT_KEY_2:
-//             /* Fall through. */
-//         case BSP_EVENT_KEY_3:
-//             /* Fall through. */
-//         case BSP_EVENT_KEY_4:
-//             /* Fall through. */
-//         case BSP_EVENT_KEY_5:
-//             /* Fall through. */
-//         case BSP_EVENT_KEY_6:
-//             /* Fall through. */
-//         case BSP_EVENT_KEY_7:
-//             /* Get actual button state. */
-//             for (int i = 0; i < BUTTONS_NUMBER; i++)
-//             {
-//                 prep_packet |= (bsp_board_button_state_get(i) ? (1 << i) : 0);
-//             }
-//             break;
-//         default:
-//             /* No implementation needed. */
-//             break;
-//     }
-//     packet = prep_packet;
-// }
 
 
 /**@brief Function for initialization oscillators.
@@ -188,9 +155,10 @@ int main(void)
 
     
     err_code = NRF_LOG_INIT(NULL);
-
-    NRF_LOG_INFO("Entrypoint\r\n");
     APP_ERROR_CHECK(err_code);
+
+    NRF_LOG_INFO("Transmitter started\r\n");
+    
 
     // err_code = bsp_init(BSP_INIT_LED | BSP_INIT_BUTTONS,
     //                     APP_TIMER_TICKS(100, APP_TIMER_PRESCALER),
