@@ -2,6 +2,8 @@
 
 *.bin
 *.hex
+*.vscode
 
 #folders
 **/_build/
+**/.vscode/
