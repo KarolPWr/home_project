@@ -65,11 +65,12 @@
 #include "nrf_log_ctrl.h"
 #include "nrf_delay.h"
 
+#include "dht22.h"
+
 #define APP_TIMER_PRESCALER      0                           /**< Value of the RTC1 PRESCALER register. */
 #define APP_TIMER_OP_QUEUE_SIZE  2                           /**< Size of timer operation queues. */
 
 static uint32_t                   packet;                    /**< Packet to transmit. */
-
 
 
 #define NRF_LOG_BACKEND_SERIAL_USES_UART 1
@@ -156,7 +157,6 @@ int main(void)
     
     err_code = NRF_LOG_INIT(NULL);
     APP_ERROR_CHECK(err_code);
-
     NRF_LOG_INFO("Transmitter started\r\n");
     
 
