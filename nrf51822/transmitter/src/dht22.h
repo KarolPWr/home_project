@@ -7,7 +7,7 @@
 #include "nrf_delay.h"
 
 extern uint8_t dht22_port; 
-extern uint8_t dht22_pin;
+extern uint8_t dht22_pin;  // change later
 
 #define DHT22_PIN   NRF_GPIO_PIN_MAP(dht22_port,dht22_pin) 
 

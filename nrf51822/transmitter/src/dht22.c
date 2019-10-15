@@ -26,9 +26,9 @@ void DHT22_start(void)
     nrf_gpio_cfg_output(DHT22_PIN);
     nrf_gpio_pin_clear(DHT22_PIN);
     nrf_delay_us(500);
-    nrf_gpio_set(DHT22_PIN);
+    nrf_gpio_pin_set(DHT22_PIN);
     nrf_delay_us(30);
-    nrf_gpio_cfg_input(DHT22_PIN);
+    nrf_gpio_cfg_input(DHT22_PIN, NRF_GPIO_PIN_NOPULL);
 }
 
 uint8_t check_response(void)
@@ -64,7 +64,7 @@ uint8_t check_response(void)
 
 uint8_t read_data(void)
 {
-    uint8_t i,j;
+    uint8_t i = 0,j = 0;
     for(j=0; j<8; ++j)
     {
         while(!nrf_gpio_pin_read(DHT22_PIN));  // wait for the pin to go high

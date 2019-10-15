@@ -72,6 +72,9 @@
 
 static uint32_t                   packet;                    /**< Packet to transmit. */
 
+uint8_t dht22_port = 0; 
+uint8_t dht22_pin = 19;  // CHANGE
+
 
 #define NRF_LOG_BACKEND_SERIAL_USES_UART 1
 
@@ -158,12 +161,10 @@ int main(void)
     err_code = NRF_LOG_INIT(NULL);
     APP_ERROR_CHECK(err_code);
     NRF_LOG_INFO("Transmitter started\r\n");
-    
 
-    // err_code = bsp_init(BSP_INIT_LED | BSP_INIT_BUTTONS,
-    //                     APP_TIMER_TICKS(100, APP_TIMER_PRESCALER),
-    //                     bsp_evt_handler);
-    // APP_ERROR_CHECK(err_code);
+    uint8_t Rh_byte1, Rh_byte2, Temp_byte1, Temp_byte2;
+    uint16_t RH, TEMP;
+    
 
     // Set radio configuration parameters
     radio_configure();
@@ -171,17 +172,28 @@ int main(void)
     // Set payload pointer
     NRF_RADIO->PACKETPTR = (uint32_t)&packet;
 
-    // err_code = bsp_indication_set(BSP_INDICATE_USER_STATE_OFF);
-    // NRF_LOG_INFO("Press Any Button\r\n");
-    // APP_ERROR_CHECK(err_code);
-    uint8_t counter =0;
+    //uint8_t counter =0;
     while (true)
     {
-            packet = counter;
+            DHT22_start ();
+            check_response ();
+            Rh_byte1 = read_data ();
+            Rh_byte2 = read_data ();
+            Temp_byte1 = read_data ();
+            Temp_byte2 = read_data ();
+
+            TEMP = ((Temp_byte1<<8)|Temp_byte2);
+			RH = ((Rh_byte1<<8)|Rh_byte2);
+
+            TEMP = (TEMP/100) + 48;
+
+            NRF_LOG_INFO("TEMP: %u RH: %u", TEMP, RH);
+
+            packet = TEMP;
             send_packet();
             NRF_LOG_INFO("The contents of the package was %u\r\n", (unsigned int)packet);
             nrf_delay_ms(1000);
-            ++counter;
+            //++counter;
             
         
         NRF_LOG_FLUSH();
