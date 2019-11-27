@@ -66,6 +66,7 @@
 #include "nrf_delay.h"
 
 #include "dht22.h"
+#include "utils.h"
 
 #define APP_TIMER_PRESCALER      0                           /**< Value of the RTC1 PRESCALER register. */
 #define APP_TIMER_OP_QUEUE_SIZE  2                           /**< Size of timer operation queues. */
@@ -162,8 +163,9 @@ int main(void)
     APP_ERROR_CHECK(err_code);
     NRF_LOG_INFO("Transmitter started\r\n");
 
-    uint8_t Rh_byte1, Rh_byte2, Temp_byte1, Temp_byte2;
-    uint16_t RH, TEMP;
+    uint8_t hum_int, hum_dec,temp_int, temp_dec;
+    int16_t RH = 0, TEMP = 0;
+    division temper;
     
 
     // Set radio configuration parameters
@@ -177,17 +179,25 @@ int main(void)
     {
             DHT22_start ();
             check_response ();
-            Rh_byte1 = read_data ();
-            Rh_byte2 = read_data ();
-            Temp_byte1 = read_data ();
-            Temp_byte2 = read_data ();
+            hum_int = read_data ();
+            hum_dec = read_data ();
+            temp_int = read_data ();
+            temp_dec = read_data ();
+            // checksum = read_data ();
 
-            TEMP = ((Temp_byte1<<8)|Temp_byte2);
-			RH = ((Rh_byte1<<8)|Rh_byte2);
+            /* Merge integral and decimal bytes together */
+            TEMP = ((temp_int<<8)|(temp_dec & 0xff));
+			RH = ((hum_int<<8)|(hum_dec & 0xff));
 
-            TEMP = (TEMP/100) + 48;
+            // TEMP = ROUNDED_DIV(TEMP, 10); //TODO make it divide using integers also test for negative
+            RH = ROUNDED_DIV(RH, 10);
 
-            NRF_LOG_INFO("TEMP: %u RH: %u", TEMP, RH);
+            temper = divide(TEMP, 10);
+
+
+
+
+            NRF_LOG_INFO("TEMP: %i.%i RH: %i\r\n", temper.quotient, temper.remainder, RH);
 
             packet = TEMP;
             send_packet();
