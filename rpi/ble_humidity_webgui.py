@@ -47,9 +47,9 @@ def get_data(interval):
     curs=conn.cursor()
 
     if interval == None:
-        curs.execute("SELECT * FROM temps")
+        curs.execute("SELECT * FROM humidity")
     else:
-        curs.execute("SELECT * FROM temps WHERE timestamp>datetime('now','-%s hours')" % interval)
+        curs.execute("SELECT * FROM humidity WHERE timestamp>datetime('now','-%s hours')" % interval)
 
     rows=curs.fetchall()
 
@@ -85,11 +85,11 @@ def print_graph_script(table):
       google.setOnLoadCallback(drawChart);
       function drawChart() {
         var data = google.visualization.arrayToDataTable([
-          ['Time', 'Temperature'],
+          ['Time', 'humidity'],
 %s
         ]);
         var options = {
-          title: 'Temperature'
+          title: 'humidity'
         };
         var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
         chart.draw(data, options);
@@ -103,7 +103,7 @@ def print_graph_script(table):
 
 # print the div that contains the graph
 def show_graph():
-    print "<h2>Temperature Chart</h2>"
+    print "<h2>Humidity Chart</h2>"
     print '<div id="chart_div" style="width: 900px; height: 500px;"></div>'
 
 
@@ -118,35 +118,35 @@ def show_stats(option):
     if option is None:
         option = str(24)
 
-    curs.execute("SELECT timestamp,max(temp) FROM temps WHERE timestamp>datetime('now','-%s hour') AND timestamp<=datetime('now')" % option)
+    curs.execute("SELECT timestamp,max(temp) FROM humidity WHERE timestamp>datetime('now','-%s hour') AND timestamp<=datetime('now')" % option)
     rowmax=curs.fetchone()
     rowstrmax="{0}&nbsp&nbsp&nbsp{1}C".format(str(rowmax[0]),str(rowmax[1]))
 
-    curs.execute("SELECT timestamp,min(temp) FROM temps WHERE timestamp>datetime('now','-%s hour') AND timestamp<=datetime('now')" % option)
+    curs.execute("SELECT timestamp,min(temp) FROM humidity WHERE timestamp>datetime('now','-%s hour') AND timestamp<=datetime('now')" % option)
     rowmin=curs.fetchone()
     rowstrmin="{0}&nbsp&nbsp&nbsp{1}C".format(str(rowmin[0]),str(rowmin[1]))
 
-    curs.execute("SELECT avg(temp) FROM temps WHERE timestamp>datetime('now','-%s hour') AND timestamp<=datetime('now')" % option)
+    curs.execute("SELECT avg(temp) FROM humidity WHERE timestamp>datetime('now','-%s hour') AND timestamp<=datetime('now')" % option)
     rowavg=curs.fetchone()
 
 
     print "<hr>"
 
 
-    print "<h2>Minumum temperature&nbsp</h2>"
+    print "<h2>Minumum humidity&nbsp</h2>"
     print rowstrmin
-    print "<h2>Maximum temperature</h2>"
+    print "<h2>Maximum humidity</h2>"
     print rowstrmax
-    print "<h2>Average temperature</h2>"
+    print "<h2>Average humidity</h2>"
     print "%.3f" % rowavg+"C"
 
     print "<hr>"
 
     print "<h2>In the last hour:</h2>"
     print "<table>"
-    print "<tr><td><strong>Date/Time</strong></td><td><strong>Temperature</strong></td></tr>"
+    print "<tr><td><strong>Date/Time</strong></td><td><strong>Humidity</strong></td></tr>"
 
-    rows=curs.execute("SELECT * FROM temps WHERE timestamp>datetime('new','-1 hour') AND timestamp<=datetime('new')")
+    rows=curs.execute("SELECT * FROM humidity WHERE timestamp>datetime('new','-1 hour') AND timestamp<=datetime('new')")
     for row in rows:
         rowstr="<tr><td>{0}&emsp;&emsp;</td><td>{1}C</td></tr>".format(str(row[0]),str(row[1]))
         print rowstr
@@ -162,7 +162,7 @@ def show_stats(option):
 def print_time_selector(option):
 
     print """<form action="/cgi-bin/ble_temp_webgui.py" method="POST">
-        Show the temperature logs for  
+        Show the Humidity logs for  
         <select name="timeinterval">"""
 
 
@@ -254,11 +254,11 @@ def main():
     print "<html>"
     # print the head section including the table
     # used by the javascript for the chart
-    printHTMLHead("BLE Temperature Logger", table)
+    printHTMLHead("BLE Humidity Logger", table)
 
     # print the page body
     print "<body>"
-    print "<h1>BLE Temperature Logger</h1>"
+    print "<h1>BLE Humidity Logger</h1>"
     print "<hr>"
     print_time_selector(option)
     show_graph()
