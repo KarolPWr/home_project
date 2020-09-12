@@ -161,7 +161,7 @@ def show_stats(option):
 
 def print_time_selector(option):
 
-    print """<form action="/cgi-bin/ble_temp_webgui.py" method="POST">
+    print """<form action="/cgi-bin/ble_humidity_webgui.py" method="POST">
         Show the Humidity logs for  
         <select name="timeinterval">"""
 
