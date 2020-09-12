@@ -118,15 +118,15 @@ def show_stats(option):
     if option is None:
         option = str(24)
 
-    curs.execute("SELECT timestamp,max(temp) FROM pressure WHERE timestamp>datetime('now','-%s hour') AND timestamp<=datetime('now')" % option)
+    curs.execute("SELECT timestamp,max(pressure) FROM pressure WHERE timestamp>datetime('now','-%s hour') AND timestamp<=datetime('now')" % option)
     rowmax=curs.fetchone()
-    rowstrmax="{0}&nbsp&nbsp&nbsp{1}C".format(str(rowmax[0]),str(rowmax[1]))
+    rowstrmax="{0}&nbsp&nbsp&nbsp{1}hPa".format(str(rowmax[0]),str(rowmax[1]))
 
-    curs.execute("SELECT timestamp,min(temp) FROM pressure WHERE timestamp>datetime('now','-%s hour') AND timestamp<=datetime('now')" % option)
+    curs.execute("SELECT timestamp,min(pressure) FROM pressure WHERE timestamp>datetime('now','-%s hour') AND timestamp<=datetime('now')" % option)
     rowmin=curs.fetchone()
-    rowstrmin="{0}&nbsp&nbsp&nbsp{1}C".format(str(rowmin[0]),str(rowmin[1]))
+    rowstrmin="{0}&nbsp&nbsp&nbsp{1}hPa".format(str(rowmin[0]),str(rowmin[1]))
 
-    curs.execute("SELECT avg(temp) FROM pressure WHERE timestamp>datetime('now','-%s hour') AND timestamp<=datetime('now')" % option)
+    curs.execute("SELECT avg(pressure) FROM pressure WHERE timestamp>datetime('now','-%s hour') AND timestamp<=datetime('now')" % option)
     rowavg=curs.fetchone()
 
 
@@ -138,7 +138,7 @@ def show_stats(option):
     print "<h2>Maximum pressure</h2>"
     print rowstrmax
     print "<h2>Average pressure</h2>"
-    print "%.3f" % rowavg+"C"
+    print "%.3f" % rowavg+"hPa"
 
     print "<hr>"
 
@@ -148,7 +148,7 @@ def show_stats(option):
 
     rows=curs.execute("SELECT * FROM pressure WHERE timestamp>datetime('new','-1 hour') AND timestamp<=datetime('new')")
     for row in rows:
-        rowstr="<tr><td>{0}&emsp;&emsp;</td><td>{1}C</td></tr>".format(str(row[0]),str(row[1]))
+        rowstr="<tr><td>{0}&emsp;&emsp;</td><td>{1}hPa</td></tr>".format(str(row[0]),str(row[1]))
         print rowstr
     print "</table>"
 
